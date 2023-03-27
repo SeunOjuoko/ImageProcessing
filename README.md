@@ -1,3 +1,3 @@
 # ImageProcessing
-Image Processing in MATLAB
-Four Assignments
+Four Assignments in MATLAB
+
