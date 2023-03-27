@@ -1,0 +1,61 @@
+close all; 
+clear all; 
+clc;
+
+%Import the image file for the figure and converts into a double
+im = im2double(imread('images\low_light\scene1.bmp'));
+
+%Stores the pixels size and values of the imported image
+[rows, cols, RGB] = size(im);
+im1 = im;
+im1R = im1(:,:,1);
+im1Rsize = size(im1R);
+im2 = zeros(rows, cols);
+E = zeros(rows, cols, RGB);
+%Parameters from task 1... 
+k = 100;                        %number of iterations
+N = 50;                         %Positive constant to calculate gradient in iterations
+%Positive value added to the U(x) denominator to avoid division by zero
+epsilon = 0.1;                 
+
+for x = 1 : rows % iterations
+    for y = 1 : cols
+        %Finds the max for the denominator 
+        T(x,y) = max(im1(x, y, :));
+    end
+end
+
+%Iterates through each inner pixel
+for n = 1 : N % for each inner pixel
+    for x = 2 : rows - 1
+        for y = 2 : cols - 1
+            % resets gradient sum for next window
+            SumWij = 0;
+            for i = -1 : 1 
+                for j = -1 : 1
+                    %Equation calculates the gradient
+                    Wij = exp(-k*abs(T(x,y)-T(x+i,y+j)));
+                    %Adds up the gradient (denominator)
+                    SumWij = SumWij + Wij;
+                    %Sums the weights*inputs(numerator)
+                    im2(x,y) = im2(x,y)+Wij* T(x+i,y+j);
+                end
+            end
+        %Divides the numerator by the denominator
+        im2(x,y) = (im2(x,y)/SumWij);
+        end
+    end
+end
+
+%Iteration to enhance each pixel through the enhancement equation 
+for x = 2 : rows
+    for y = 2 : cols
+        for z = 1:3
+            E(x,y,z) = im1(x,y,z)/(im2(x,y)+epsilon);
+        end
+    end
+end
+
+%Presents both figures of the original and enhanced image
+figure, imshow(im);
+figure, imshow(E);

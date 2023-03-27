@@ -1,0 +1,52 @@
+clear all, 
+close all, 
+clc;
+
+%Import the image file for the figure and converts into a double
+image = im2double(imread('images\eye-hand-1.png')); 
+%Conducts the fourier transform of image
+image_fourier = fftshift(fft2(image));
+
+%Creates a figure for the plots 
+figure,                                                                     
+subplot(1,4,1), 
+imshow(image), 
+title('Original Image');                     
+
+%Frequency domain subplot
+subplot(1,4,2), 
+fftshow(image_fourier,'log'), 
+title('Frequency Domain');    
+
+%This creates an array store the selected points
+[x0,y0] = getpts();                                             
+
+%Declares the size of image to enable pixel iteration
+image_size = size(image_fourier);  
+%Iterates through each inner pixel
+for i = 1 : image_size(1)            
+     for j = 1 : image_size(2)
+        %Each iteration stores the location for each frequency that must be removed 
+         for n = 1 : 4              
+          x = x0(n);    %Retrieves the x value for n in the iteration
+          y = y0(n);    %Retrieves the y value for n in the iteration 
+          %Checks the points around each frequency of pixel 
+          %within a set area of 120
+          if(((x-j).^2)+((y-i).^2) < 120)
+              %Sets pixels to 0 to remove the frequency on image  
+              image_fourier(i,j)=0;            
+          end
+         end
+     end
+end
+
+%Frequency domain subplot
+subplot(1,4,3); 
+fftshow(image_fourier,'log');
+title('Frequency Domain');
+  
+%Computes inverse fourier transform for restored image
+fourier_image = real(ifft2(fftshift(image_fourier)));          
+subplot(1,4,4);
+imshow(fourier_image);
+title('Restored image'); % suplot the restored image
